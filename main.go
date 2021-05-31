@@ -109,6 +109,7 @@ func main() {
 
 		// projects
 		r.HandleFunc("/new_project", newProject)
+		r.HandleFunc("/save_project", saveProject)
 
 	  err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	  if err != nil {

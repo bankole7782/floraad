@@ -10,6 +10,10 @@ import (
   "github.com/pkg/errors"
   "math/rand"
   "time"
+  "encoding/json"
+	"cloud.google.com/go/storage"
+	"context"
+  "google.golang.org/api/option"
 )
 
 const VersionFormat = "20060102T150405MST"
@@ -65,7 +69,7 @@ func errorPage(w http.ResponseWriter, err error) {
 	msg = strings.ReplaceAll(msg, "\n", "<br>")
 	msg = strings.ReplaceAll(msg, " ", "&nbsp;")
 	msg = strings.ReplaceAll(msg, "\t", "&nbsp;&nbsp;")
-	tmpl := template.Must(template.ParseFS(content, "templates/error.html"))
+	tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/error.html"))
 	tmpl.Execute(w, Context{template.HTML(msg)})
 }
 
@@ -79,4 +83,43 @@ func emptyDir(path string) error {
 		os.RemoveAll(filepath.Join(path, objFI.Name()))
 	}
 	return nil
+}
+
+
+func uploadFile(bucketName, sakPath, objectName string, objectData []byte) error {
+  ctx := context.Background()
+  client, err := storage.NewClient(ctx, option.WithCredentialsFile(sakPath))
+  if err != nil {
+    return errors.Wrap(err, "storage error")
+  }
+  defer client.Close()
+
+  ctx, cancel := context.WithTimeout(ctx, time.Second*50)
+  defer cancel()
+
+  // Upload an object with storage.Writer.
+  wc := client.Bucket(bucketName).Object(objectName).NewWriter(ctx)
+  wc.Write(objectData)
+  if err := wc.Close(); err != nil {
+    return errors.Wrap(err, "storage error")
+  }
+  return nil
+}
+
+
+
+func getUserData() (map[string]string, error) {
+	rootPath, _ := GetRootPath()
+	raw, err := os.ReadFile(filepath.Join(rootPath, "user_data.json"))
+	if err != nil {
+		return nil, errors.Wrap(err, "os error")
+	}
+
+	userData := make(map[string]string)
+	err = json.Unmarshal(raw, &userData)
+	if err != nil {
+		return nil, errors.Wrap(err, "json error")
+	}
+
+	return userData, nil
 }
