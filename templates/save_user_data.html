@@ -1,0 +1,33 @@
+{{define "styles"}}
+<style>
+	#container {
+		width: 600px;
+		margin: 0 auto;
+	}
+	.i {
+		width: 450px;
+	}
+</style>
+{{end}}
+
+
+{{define "main"}}
+<div id="container">
+	<h1>Save User Data</h1>
+	<form method="post" action="/save_user_data">
+		<div>
+			<label>Fullname</label><br>
+			<input type="text" class="i" name="fullname" required />
+		</div>
+
+		<div>
+			<label>Email Address</label><br>
+			<input type="email" class="i" name="email" required />
+		</div>
+
+		<div>
+			<input type="submit" value="Save Data" />
+		</div>
+	</form>
+</div>
+{{end}}

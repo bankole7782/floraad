@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    @font-face {
+      font-family: "Comfortaa";
+      src: url("/gs/Comfortaa-Regular.ttf");
+    }
+    body {
+      font-family: "Comfortaa";
+      background: url("/gs/floraad_sprite.png") repeat;
+    }
+    form div {
+      margin-bottom: 10px;
+    }
+    input, select, textarea {
+      border: 1px solid gray;
+      background-color: transparent;
+      padding: 5px;
+      font-family: "Comfortaa";
+    }
+  </style>
+  {{block "styles" .}} {{end}}
+  <style>
+  </style>
+</head>
+<body>
+  {{block "main" .}} {{end}}
+  <script src="/gs/jquery-3.6.0.min.js"></script>
+  <script src="/gs/autosize.min.js"></script>
+  <script>
+  $(document).ready(function() {
+    autosize($('textarea'));
+  });
+  </script>
+  {{block "scripts" .}} {{end}}
+</body>
+</html>
