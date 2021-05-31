@@ -1,0 +1,50 @@
+{{define "styles"}}
+<style>
+	.a_snapshot_desc {
+		margin-left: 20px;
+	}
+	.a_snapshot {
+		margin-bottom: 20px;
+	}
+</style>
+{{end}}
+
+
+{{define "main"}}
+<div id="container">
+	<div id="header">
+		<select id="projects_switch">
+			{{range .Projects}}
+				{{if eq $.CurrentProject .}}
+					<option selected> {{.}} </option>
+				{{else}}
+					<option>{{.}}</option>
+				{{end}}
+			{{end}}
+		</select>
+		| <a href="/view_project/{{.CurrentProject}}">Description</a>
+		| <a href="/view_snapshots/{{.CurrentProject}}">Snapshots</a>
+		|	<a href="/create_snapshot/{{.CurrentProject}}">Create Snapshot</a>
+	</div>
+
+
+	<h1>Your Snapshots</h1>
+	<div id="snapshots_box">
+		{{range .Snapshots}}
+			<div class="a_snapshot">
+				<b>Creation Time</b>: {{call $.SnapshotTime .snapshot_name}}<br>
+				<b>Description</b>:<br>
+				<div class="a_snapshot_desc">
+					{{call $.CleanSnapshotDesc .snapshot_desc}}
+				</div>
+				<a href="/view_snapshot/{{$.CurrentProject}}/{{.snapshot_name}}">View Snapshot</a>
+				| <a href="/revert_to_this/{{$.CurrentProject}}/{{.snapshot_name}}">Revert to this</a>
+				| <a href="/fix_comment/{{$.CurrentProject}}/{{.snapshot_name}}">Fix Comment</a>
+			</div>
+		{{else}}
+			<p>You have not defined any snapshots</p>
+		{{end}}
+	</div>
+
+</div>
+{{end}}
