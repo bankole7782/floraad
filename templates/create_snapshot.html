@@ -1,0 +1,23 @@
+{{define "styles"}}
+
+
+{{end}}
+
+
+
+{{define "main"}}
+<div id="container">
+	<h1>Create Snapshot for {{.CurrentProject}}</h1>
+	<form method="post">
+		<div>
+			<label>Snapshot Description</label><br>
+			<textarea style="width: 85%" name="desc" required></textarea>
+		</div>
+
+		<div>
+			<input type="submit" value="Create Snapshot" />
+		</div>
+	</form>
+
+
+{{end}}

@@ -125,6 +125,21 @@ func downloadFileAsBytes(bucketName, sakPath, objectName string) ([]byte, error)
 }
 
 
+func doesGCPPathExists(bucketName, sakPath, objectName string) (bool, error) {
+  ctx := context.Background()
+  client, err := storage.NewClient(ctx, option.WithCredentialsFile(sakPath))
+  if err != nil {
+    return false, errors.Wrap(err, "storage error")
+  }
+  defer client.Close()
+
+  _, err = client.Bucket(bucketName).Object(objectName).NewReader(ctx)
+  if err != nil {
+  	return false, nil
+  }
+  return true, nil
+}
+
 
 func getUserData() (map[string]string, error) {
 	rootPath, _ := GetRootPath()
