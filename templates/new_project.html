@@ -1,0 +1,48 @@
+{{define "styles"}}
+<style>
+	#container {
+		width: 600px;
+		margin: 0 auto;
+	}
+	.i {
+		width: 450px;
+	}
+</style>
+{{end}}
+
+
+{{define "main"}}
+<div id="container">
+	<h1>New Project</h1>
+	<p>Root directory is <a class="xdg" href="{{.RootPath}}">{{.RootPath}}</a></p>
+	<form method="post" action="/save_user_data">
+		<div>
+			<label>Project Name (This would be used to create a folder in the Project directory which is <b>{{.ProjectsPath}}</b></label><br>
+			<input type="text" class="i" name="project_name" required />
+		</div>
+
+		<div>
+			<label>Description</label><br>
+			<textarea name="desc" class="i"></textarea>
+		</div>
+
+		<div>
+			<label>Google Cloud Bucket (Create one on <a class="xdg" href="https://console.cloud.google.com">Google Cloud</a> )</label>
+			<input type="text" class="i" name="gcp_bucket" required />
+		</div>
+
+		<div>
+			<label>Service Account Key File (Read <a class="xdg" href="https://cloud.google.com/docs/authentication/production">This</a> and copy your service account key file to <b>{{.RootPath}}</b>) </label>
+			<select name="sak_json" class="i" required>
+				{{range .Files}}
+					<option>{{.}}</option>
+				{{end}}
+			</select>
+		</div>
+
+		<div>
+			<input type="submit" value="Save Data" />
+		</div>
+	</form>
+</div>
+{{end}}

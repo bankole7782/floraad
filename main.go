@@ -22,7 +22,7 @@ func init() {
   }
 	os.MkdirAll(filepath.Join(rootPath, "p"), 0777)
 	os.MkdirAll(filepath.Join(rootPath, "flotmp"), 0777)	
-	os.MkdirAll(filepath.Join(rootPath, "flotns"), 0777)	
+	os.MkdirAll(filepath.Join(rootPath, "pd"), 0777)	
 }
 
 
@@ -48,10 +48,21 @@ func main() {
 
 	  r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-	  	if ! DoesPathExists(filepath.Join(rootPath, "flotns", "user_data.json")) {
+	  	if ! DoesPathExists(filepath.Join(rootPath, "user_data.json")) {
 	      tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/save_user_data.html"))
 	      tmpl.Execute(w, nil)
 	      return
+	  	}
+
+	  	dirFIs, err := os.ReadDir(filepath.Join(rootPath, "pd"))
+	  	if err != nil {
+	  		errorPage(w, errors.Wrap(err, "os read error"))
+	  		return
+	  	}
+
+	  	if len(dirFIs) == 0 {
+	  		http.Redirect(w, r, "/new_project", 307)
+	  		return
 	  	}
 
 	  	fmt.Fprintf(w, "ok")
@@ -71,7 +82,7 @@ func main() {
 	  		return
 	  	}
 
-	  	err = os.WriteFile(filepath.Join(rootPath, "flotns", "user_data.json"), jsonBytes, 0777)
+	  	err = os.WriteFile(filepath.Join(rootPath, "user_data.json"), jsonBytes, 0777)
 	  	if err != nil {
 	  		errorPage(w, errors.Wrap(err, "os write error"))
 	  		return
@@ -96,6 +107,8 @@ func main() {
 			exec.Command("xdg-open", r.FormValue("p")).Run()
 		})
 
+		// projects
+		r.HandleFunc("/new_project", newProject)
 
 	  err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	  if err != nil {

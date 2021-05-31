@@ -33,6 +33,12 @@
   <script>
   $(document).ready(function() {
     autosize($('textarea'));
+
+    $(".xdg").click(function(e) {
+      e.preventDefault()
+      $.get("/xdg/?p=" + $(e.target).attr("href"))      
+    })
+
   });
   </script>
   {{block "scripts" .}} {{end}}
