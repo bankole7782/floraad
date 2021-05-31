@@ -112,6 +112,7 @@ func main() {
 		r.HandleFunc("/save_project", saveProject)
 		r.HandleFunc("/view_project/{proj}", viewProject)
 		r.HandleFunc("/update_desc/{proj}", updateDesc)
+		r.HandleFunc("/update_exrules/{proj}", updateExclusionRules)
 
 
 		// snapshots

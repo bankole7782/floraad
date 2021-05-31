@@ -14,6 +14,12 @@ import (
 )
 
 
+
+// func getToSnapshotFilesList(projectName string) ([]string, error) {
+
+// }
+
+
 func createSnapshot(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	projectName := vars["proj"]
@@ -38,18 +44,17 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	projectPath := filepath.Join(rootPath, "p", projectName)
-	if ! manifestStatus {
-		// make the first snapshot
-		objFIs, err := os.ReadDir(projectPath)
-		if err != nil {
-			errorPage(w, errors.Wrap(err, "os error"))
-			return
-		}
 
-		if len(objFIs) == 0 {
-			errorPage(w, errors.New("Your project folder is empty."))
-			return
-		}
+	// check if the directory is empty
+	objFIs, err := os.ReadDir(projectPath)
+	if err != nil {
+		errorPage(w, errors.Wrap(err, "os error"))
+		return
+	}
+
+	if len(objFIs) == 0 {
+		errorPage(w, errors.New("Your project folder is empty."))
+		return
 	}
 
 	if r.Method == http.MethodGet {
@@ -62,6 +67,7 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 
 
 		if ! manifestStatus {
+			// make the first commit
 		  outFIs, err := os.ReadDir(projectPath)
 		  if err != nil {
 		  	errorPage(w, errors.Wrap(err, "os error"))

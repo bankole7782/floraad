@@ -160,3 +160,62 @@ func updateDesc(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/view_project/" + projectName, 307)
 	}
 }
+
+
+func updateExclusionRules(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	projectName := vars["proj"]
+	rootPath, _ := GetRootPath()
+
+	pd, err := getProjectData(projectName)
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	userData, err := getUserData()
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	sakPath := filepath.Join(rootPath, pd["sak_json"])
+
+	if r.Method == http.MethodGet {
+		rulesStatus, err := doesGCPPathExists(pd["project_name"], sakPath, userData["email"] + "/exrules.txt")
+		if err != nil {
+			errorPage(w, err)
+			return
+		}
+
+		var rules string
+		if rulesStatus {
+			rulesBytes, err := downloadFileAsBytes(pd["project_name"], sakPath, userData["email"] + "/exrules.txt")
+			if err != nil {
+				errorPage(w, err)
+				return
+			}
+			rules = string(rulesBytes)
+		}
+
+		type Context struct {
+			CurrentProject string
+			Rules string
+		}
+		tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/update_exrules.html"))
+	  tmpl.Execute(w, Context{projectName, rules})		
+	} else {
+
+		err = uploadFile(pd["gcp_bucket"], sakPath, userData["email"] + "/exrules.txt", []byte(r.FormValue("exrules")))
+		if err != nil {
+			errorPage(w, err)
+			return
+		}
+
+		err = os.WriteFile(filepath.Join(rootPath, "pd", projectName + "_exrules.txt"), []byte(r.FormValue("exrules")), 0777)
+		if err != nil {
+			errorPage(w, errors.Wrap(err, "os error"))
+			return
+		}
+
+		http.Redirect(w, r, "/view_project/" + projectName, 307)
+	}
+}
