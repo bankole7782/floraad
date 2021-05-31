@@ -1,0 +1,37 @@
+{{define "styles"}}
+<style>
+	#desc {
+		margin-left: 50px;
+	}
+</style>
+{{end}}
+
+
+{{define "main"}}
+<div id="container">
+	<div id="header">
+		<select id="projects_switch">
+			{{range .Projects}}
+				{{if eq $.CurrentProject .}}
+					<option selected> {{.}} </option>
+				{{else}}
+					<option>{{.}}</option>
+				{{end}}
+			{{end}}
+		</select>
+		|
+		<a href="/view_snapshots/{{.CurrentProject}}">Snapshots</a>
+		|
+		<a href="/create_snapshot/{{.CurrentProject}}">Create Snapshot</a>
+	</div>
+
+
+	<h1>Description</h1>
+	<div id="desc">
+		{{.DescHTML}}
+		<br>
+		<a href="/update_desc/{{.CurrentProject}}">Update Description</a>
+	</div>
+
+</div>
+{{end}}

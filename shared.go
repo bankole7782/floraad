@@ -14,6 +14,7 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
   "google.golang.org/api/option"
+  "io"
 )
 
 const VersionFormat = "20060102T150405MST"
@@ -94,9 +95,6 @@ func uploadFile(bucketName, sakPath, objectName string, objectData []byte) error
   }
   defer client.Close()
 
-  ctx, cancel := context.WithTimeout(ctx, time.Second*50)
-  defer cancel()
-
   // Upload an object with storage.Writer.
   wc := client.Bucket(bucketName).Object(objectName).NewWriter(ctx)
   wc.Write(objectData)
@@ -104,6 +102,26 @@ func uploadFile(bucketName, sakPath, objectName string, objectData []byte) error
     return errors.Wrap(err, "storage error")
   }
   return nil
+}
+
+
+func downloadFileAsBytes(bucketName, sakPath, objectName string) ([]byte, error) {
+  ctx := context.Background()
+  client, err := storage.NewClient(ctx, option.WithCredentialsFile(sakPath))
+  if err != nil {
+    return nil, errors.Wrap(err, "storage error")
+  }
+  defer client.Close()
+
+  rc, err := client.Bucket(bucketName).Object(objectName).NewReader(ctx)
+  if err != nil {
+  	return nil, errors.Wrap(err, "storage error")
+  }
+  data, err := io.ReadAll(rc)
+  if err != nil {
+  	return nil, errors.Wrap(err, "storage error")
+  }
+  return data, nil
 }
 
 
@@ -122,4 +140,36 @@ func getUserData() (map[string]string, error) {
 	}
 
 	return userData, nil
+}
+
+
+func getProjectData(projectName string) (map[string]string, error) {
+	rootPath, _ := GetRootPath()
+	raw, err := os.ReadFile(filepath.Join(rootPath, "pd", projectName + ".json"))
+	if err != nil {
+		return nil, errors.Wrap(err, "os error")
+	}
+
+	projectData := make(map[string]string)
+	err = json.Unmarshal(raw, &projectData)
+	if err != nil {
+		return nil, errors.Wrap(err, "json error")
+	}
+
+	return projectData, nil
+}
+
+
+func getAllProjects() ([]string, error) {
+	rootPath, _ := GetRootPath()
+	objFIs, err := os.ReadDir(filepath.Join(rootPath, "pd"))
+	if err != nil {
+		return nil, errors.Wrap(err, "os error")
+	}
+	projects := make([]string, 0)
+	for _, objFI := range objFIs {
+		p := strings.ReplaceAll(objFI.Name(), ".json", "")
+		projects = append(projects, p)
+	}
+	return projects, nil
 }

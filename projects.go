@@ -8,6 +8,9 @@ import (
 	"github.com/pkg/errors"
 	// "strings"
 	"encoding/json"
+	"github.com/gorilla/mux"
+	// "fmt"
+	"github.com/gomarkdown/markdown"
 )
 
 
@@ -84,4 +87,76 @@ func saveProject(w http.ResponseWriter, r *http.Request) {
 	os.MkdirAll(filepath.Join(rootPath, "p", projectData["project_name"]), 0777)
 
 	http.Redirect(w, r, "/view_project/" + projectData["project_name"], 307)
+}
+
+
+func viewProject(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	projectName := vars["proj"]
+	rootPath, _ := GetRootPath()
+
+	pd, err := getProjectData(projectName)
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	sakPath := filepath.Join(rootPath, pd["sak_json"])
+
+
+	descBytes, err := downloadFileAsBytes(pd["project_name"], sakPath, "desc.md")
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	projects, err := getAllProjects()
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+
+	html := markdown.ToHTML(descBytes, nil, nil)
+	type Context struct {
+		Projects []string
+		CurrentProject string
+		DescHTML template.HTML
+	}
+
+	tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/view_project.html"))
+  tmpl.Execute(w, Context{projects, projectName, template.HTML(html)})
+}
+
+
+func updateDesc(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	projectName := vars["proj"]
+	rootPath, _ := GetRootPath()
+
+	pd, err := getProjectData(projectName)
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	sakPath := filepath.Join(rootPath, pd["sak_json"])
+	descBytes, err := downloadFileAsBytes(pd["project_name"], sakPath, "desc.md")
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		type Context struct {
+			CurrentProject string
+			DescMD string
+		}
+		tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/update_desc.html"))
+	  tmpl.Execute(w, Context{projectName, string(descBytes)})		
+	} else {
+		err = uploadFile(pd["gcp_bucket"], sakPath, "desc.md", []byte(r.FormValue("desc")))
+		if err != nil {
+			errorPage(w, err)
+			return
+		}
+
+		http.Redirect(w, r, "/view_project/" + projectName, 307)
+	}
 }

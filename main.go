@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"encoding/json"
 	"github.com/pkg/errors"
+	"strings"
 )
 
 var wv webview.WebView
@@ -64,9 +65,8 @@ func main() {
 	  		http.Redirect(w, r, "/new_project", 307)
 	  		return
 	  	}
-
-	  	fmt.Fprintf(w, "ok")
-
+	  	projectName := strings.Replace(dirFIs[0].Name(), ".json", "", 1)
+			http.Redirect(w, r, "/view_project/" + projectName, 307)	  	
 	  })
 
 
@@ -110,6 +110,8 @@ func main() {
 		// projects
 		r.HandleFunc("/new_project", newProject)
 		r.HandleFunc("/save_project", saveProject)
+		r.HandleFunc("/view_project/{proj}", viewProject)
+		r.HandleFunc("/update_desc/{proj}", updateDesc)
 
 	  err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	  if err != nil {
