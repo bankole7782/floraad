@@ -21,7 +21,8 @@ func init() {
     panic(err)
   }
 	os.MkdirAll(filepath.Join(rootPath, "p"), 0777)
-	os.MkdirAll(filepath.Join(rootPath, ".flotmp"), 0777)	
+	os.MkdirAll(filepath.Join(rootPath, "flotmp"), 0777)	
+	os.MkdirAll(filepath.Join(rootPath, "flotns"), 0777)	
 }
 
 
@@ -36,13 +37,9 @@ func main() {
     panic(err)
   }
 
- //  defer func() {
-	// 	emptyDir(filepath.Join(rootPath, ".ob"))
-	// }()
-
-	// defer func() {
-	// 	emptyDir(filepath.Join(rootPath, ".maps"))
-	// }()
+	defer func() {
+		emptyDir(filepath.Join(rootPath, "flotns"))
+	}()
 
 
 	go func() {
@@ -51,7 +48,7 @@ func main() {
 
 	  r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-	  	if ! DoesPathExists(filepath.Join(rootPath, ".flotmp", "user_data.json")) {
+	  	if ! DoesPathExists(filepath.Join(rootPath, "flotns", "user_data.json")) {
 	      tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/save_user_data.html"))
 	      tmpl.Execute(w, nil)
 	      return
@@ -74,7 +71,7 @@ func main() {
 	  		return
 	  	}
 
-	  	err = os.WriteFile(filepath.Join(rootPath, ".flotmp", "user_data.json"), jsonBytes, 0777)
+	  	err = os.WriteFile(filepath.Join(rootPath, "flotns", "user_data.json"), jsonBytes, 0777)
 	  	if err != nil {
 	  		errorPage(w, errors.Wrap(err, "os write error"))
 	  		return
