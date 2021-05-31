@@ -39,7 +39,7 @@ func main() {
   }
 
 	defer func() {
-		emptyDir(filepath.Join(rootPath, "flotns"))
+		emptyDir(filepath.Join(rootPath, "flotmp"))
 	}()
 
 

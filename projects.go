@@ -102,7 +102,6 @@ func viewProject(w http.ResponseWriter, r *http.Request) {
 	}
 	sakPath := filepath.Join(rootPath, pd["sak_json"])
 
-
 	descBytes, err := downloadFileAsBytes(pd["project_name"], sakPath, "desc.md")
 	if err != nil {
 		errorPage(w, err)
