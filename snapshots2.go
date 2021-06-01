@@ -222,7 +222,7 @@ func revertToThis(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func fixComment(w http.ResponseWriter, r *http.Request) {
+func fixSnapshotDesc(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	projectName := vars["proj"]
 	snapshotName := vars["sname"]
