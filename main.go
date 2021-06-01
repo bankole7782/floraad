@@ -118,7 +118,7 @@ func main() {
 		// snapshots
 		r.HandleFunc("/create_snapshot/{proj}", createSnapshot)
 		r.HandleFunc("/view_snapshots/{proj}", viewSnapshots)
-
+		r.HandleFunc("/view_snapshot/{proj}/{sname}", viewSnapshot)
 
 	  err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	  if err != nil {

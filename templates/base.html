@@ -15,12 +15,24 @@
     form div {
       margin-bottom: 10px;
     }
-    input, select, textarea, button {
-      border: 1px solid gray;
+    input, select, textarea, button, .finer {
+      border: 2px solid #4B0F0F;
       background-color: transparent;
       padding: 5px;
       font-family: "Comfortaa";
-      font-size: 0.8em;
+    }
+    .finer {
+      text-decoration: none;
+      margin-top: 10px;
+    }
+    .finer:hover {
+      color: #4B0F0F;
+    }
+    input, select, textarea {
+      font-size: 0.8em;      
+    }
+    input[type=submit] {
+      font-size: 1em;
     }
   </style>
   {{block "styles" .}} {{end}}
@@ -46,6 +58,11 @@
 
     $("#go_back").click(function(e) {
       history.back()
+    })
+
+    $("#project_switch").change(function(e){
+      var projectToView = $(e.target).val()
+      location.assign("/view_project/" + projectToView)
     })
   });
   </script>

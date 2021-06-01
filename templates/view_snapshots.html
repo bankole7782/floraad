@@ -6,6 +6,9 @@
 	.a_snapshot {
 		margin-bottom: 20px;
 	}
+	.a_snapshot_btns {
+		margin-top: 10px;
+	}
 </style>
 {{end}}
 
@@ -38,9 +41,11 @@
 				<div class="a_snapshot_desc">
 					{{call $.CleanSnapshotDesc .snapshot_desc}}
 				</div>
-				<a href="/view_snapshot/{{$.CurrentProject}}/{{.snapshot_name}}">View Snapshot</a>
-				| <a href="/revert_to_this/{{$.CurrentProject}}/{{.snapshot_name}}">Revert to this</a>
-				| <a href="/fix_comment/{{$.CurrentProject}}/{{.snapshot_name}}">Fix Comment</a>
+				<div class="a_snapshot_btns">
+					<a class="finer" href="/view_snapshot/{{$.CurrentProject}}/{{.snapshot_name}}">View Snapshot</a>
+					| <a class="finer" href="/revert_to_this/{{$.CurrentProject}}/{{.snapshot_name}}">Revert to this</a>
+					| <a class="finer" href="/fix_comment/{{$.CurrentProject}}/{{.snapshot_name}}">Fix Comment</a>
+				</div>
 			</div>
 		{{else}}
 			<p>You have not defined any snapshots</p>
