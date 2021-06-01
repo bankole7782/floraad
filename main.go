@@ -126,6 +126,7 @@ func main() {
 
 		// others snapshots
 		r.HandleFunc("/view_others_snapshots/{proj}/{email}", viewOthersSnapshots)
+		r.HandleFunc("/view_others_snapshot/{proj}/{email}/{sname}", viewOthersSnapshot)
 
 
 	  err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
