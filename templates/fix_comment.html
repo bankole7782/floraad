@@ -1,0 +1,20 @@
+{{define "styles"}}
+
+{{end}}
+
+
+{{define "main"}}
+<div id="container">
+	<h1>Update Description for a Snapshot Created at {{.SnapshotTime}}</h1>
+	<form method="post">
+		<div>
+			<label>Description</label><br>
+			<textarea style="width: 85%;" name="desc">{{.SnapshotDesc}}</textarea>
+		</div>
+
+		<div>
+			<input type="submit" value="Update Description" />
+		</div>
+	</form>
+</div>
+{{end}}

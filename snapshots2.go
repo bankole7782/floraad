@@ -220,3 +220,107 @@ func revertToThis(w http.ResponseWriter, r *http.Request) {
   http.Redirect(w, r, "/view_snapshots/" + projectName, 307)		  
 
 }
+
+
+func fixComment(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	projectName := vars["proj"]
+	snapshotName := vars["sname"]
+	rootPath, _ := GetRootPath()
+
+	pd, err := getProjectData(projectName)
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	userData, err := getUserData()
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	sakPath := filepath.Join(rootPath, pd["sak_json"])
+
+	manifestRaw, err := downloadFileAsBytes(pd["project_name"], sakPath, userData["email"] + "/manifest.json")
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	projects, err := getAllProjects()
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+
+	snapshots := make([]map[string]string, 0)
+	err = json.Unmarshal(manifestRaw, &snapshots)
+	if err != nil {
+		errorPage(w, errors.Wrap(err, "json error"))
+		return
+	}
+
+	var snapshotDesc string
+	for _, snapshotObj := range snapshots {
+		if snapshotObj["snapshot_name"] == snapshotName {
+			snapshotDesc = snapshotObj["snapshot_desc"]
+		}
+	}
+
+	if r.Method == http.MethodGet {
+		type Context struct {
+			Projects []string
+			CurrentProject string
+			SnapshotName string
+			SnapshotTime string
+			SnapshotDesc string
+		}
+
+		st := func(s string) string {
+			timeParsed, err :=  time.Parse(VersionFormat, s)
+			if err != nil {
+				return ""
+			}
+			return timeParsed.String()
+		}
+
+
+		tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/fix_comment.html"))
+	  tmpl.Execute(w, Context{projects, projectName, snapshotName, st(snapshotName), snapshotDesc})		
+
+	} else {
+		// update manifest
+		manifestRaw, err := downloadFileAsBytes(pd["project_name"], sakPath, userData["email"] + "/manifest.json")
+		if err != nil {
+			errorPage(w, err)
+			return
+		}
+
+		snapshots := make([]map[string]string, 0)
+		err = json.Unmarshal(manifestRaw, &snapshots)
+		if err != nil {
+			errorPage(w, errors.Wrap(err, "json error"))
+			return
+		}
+
+		var index int
+		for i, snapshotObj := range snapshots {
+			if snapshotObj["snapshot_name"] == snapshotName {
+				index = i
+			}
+		}
+
+		snapshots[index]["snapshot_desc"] = r.FormValue("desc")
+		jsonBytes, err := json.Marshal(snapshots)
+	  if err != nil {
+	  	errorPage(w, errors.Wrap(err, "json error"))
+	  	return
+	  }
+	  err = uploadFile(pd["gcp_bucket"], sakPath, userData["email"] + "/manifest.json", jsonBytes)
+	  if err != nil {
+	  	errorPage(w, errors.Wrap(err, "storage error"))
+	  	return
+	  }
+
+	  http.Redirect(w, r, "/view_snapshots/" + projectName, 307)		  
+
+	}
+}
