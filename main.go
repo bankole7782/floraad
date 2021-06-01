@@ -113,6 +113,8 @@ func main() {
 		r.HandleFunc("/view_project/{proj}", viewProject)
 		r.HandleFunc("/update_desc/{proj}", updateDesc)
 		r.HandleFunc("/update_exrules/{proj}", updateExclusionRules)
+		r.HandleFunc("/join_project", joinProject)
+		r.HandleFunc("/end_join_project", endJoinProject)
 
 
 		// snapshots
@@ -133,7 +135,7 @@ func main() {
 	wv = w
 	defer w.Destroy()
 	w.SetTitle("Floraad: A Source Code Manager.")
-	w.SetSize(1200, 800, webview.HintNone)
+	w.SetSize(1200, 800, webview.HintFixed)
 
 	w.Navigate(fmt.Sprintf("http://127.0.0.1:%s", port))
 	w.Run()

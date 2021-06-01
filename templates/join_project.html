@@ -13,18 +13,13 @@
 
 {{define "main"}}
 <div id="container">
-	<h1>New Project | <a href="/join_project">Join Project</a></h1>
+	<h1>Join Project | <a href="/new_project">New Project</a></h1>
 	
 	<p>Root directory is <a class="xdg" href="{{.RootPath}}">{{.RootPath}}</a></p>
-	<form method="post" action="/save_project">
+	<form method="post" action="/end_join_project">
 		<div>
 			<label>Project Name (This would be used to create a folder in the Project directory which is <b>{{.ProjectsPath}}</b></label><br>
 			<input type="text" class="i" name="project_name" required />
-		</div>
-
-		<div>
-			<label>Description (please use Markdown)</label><br>
-			<textarea name="desc" class="i"></textarea>
 		</div>
 
 		<div>

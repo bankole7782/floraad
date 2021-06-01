@@ -33,8 +33,15 @@ func GetRootPath() (string, error) {
 	}
 	dd := os.Getenv("SNAP_USER_COMMON")
 	if strings.HasPrefix(dd, filepath.Join(hd, "snap", "go")) || dd == "" {
-		dd = filepath.Join(hd, "floraad_data")
-    os.MkdirAll(dd, 0777)
+
+		if os.Getenv("USER_TWO") == "true" {				
+			dd = filepath.Join(hd, "floraad_data_two")
+	    os.MkdirAll(dd, 0777)
+		} else {
+			dd = filepath.Join(hd, "floraad_data")
+	    os.MkdirAll(dd, 0777)			
+		}
+
 	}
 
 	return dd, nil
@@ -183,8 +190,10 @@ func getAllProjects() ([]string, error) {
 	}
 	projects := make([]string, 0)
 	for _, objFI := range objFIs {
-		p := strings.ReplaceAll(objFI.Name(), ".json", "")
-		projects = append(projects, p)
+		if strings.HasSuffix(objFI.Name(), ".json") {
+			p := strings.ReplaceAll(objFI.Name(), ".json", "")
+			projects = append(projects, p)			
+		}
 	}
 	return projects, nil
 }

@@ -487,11 +487,12 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 	}
 	sakPath := filepath.Join(rootPath, pd["sak_json"])
 
-	manifestRaw, err := downloadFileAsBytes(pd["project_name"], sakPath, userData["email"] + "/manifest.json")
+	manifestStatus, err := doesGCPPathExists(pd["project_name"], sakPath, userData["email"] + "/manifest.json")
 	if err != nil {
 		errorPage(w, err)
 		return
 	}
+
 	projects, err := getAllProjects()
 	if err != nil {
 		errorPage(w, err)
@@ -499,10 +500,18 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 	}
 
 	snapshots := make([]map[string]string, 0)
-	err = json.Unmarshal(manifestRaw, &snapshots)
-	if err != nil {
-		errorPage(w, errors.Wrap(err, "json error"))
-		return
+	if manifestStatus {
+		manifestRaw, err := downloadFileAsBytes(pd["project_name"], sakPath, userData["email"] + "/manifest.json")
+		if err != nil {
+			errorPage(w, err)
+			return
+		}
+
+		err = json.Unmarshal(manifestRaw, &snapshots)
+		if err != nil {
+			errorPage(w, errors.Wrap(err, "json error"))
+			return
+		}
 	}
 
 	type Context struct {
