@@ -523,6 +523,7 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 
 	csd := func(s string) template.HTML {
 		newS := strings.ReplaceAll(s, "\r\n", "<br>")
+		newS = strings.ReplaceAll(s, "\n", "<br>")
 		return template.HTML(newS)
 	}
 
