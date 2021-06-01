@@ -294,6 +294,10 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 				diffs[makeHTMLFriendly(key)] = template.HTML(diff)
 			}
 
+			if len(added) == 0 && len(changed) == 0 && len(deleted) == 0 {
+				errorPage(w, errors.New("No changes made."))
+				return
+			}
 			type Context struct {
 				CurrentProject string
 				HasMoreInfo bool

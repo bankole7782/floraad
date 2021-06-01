@@ -15,7 +15,7 @@
     form div {
       margin-bottom: 10px;
     }
-    input, select, textarea {
+    input, select, textarea, button {
       border: 1px solid gray;
       background-color: transparent;
       padding: 5px;
@@ -40,6 +40,13 @@
       $.get("/xdg/?p=" + $(e.target).attr("href"))      
     })
 
+    $("form").submit(function(e) {
+      $("input[type=submit]").attr("disabled", "disabled");
+    })
+
+    $("#go_back").click(function(e) {
+      history.back()
+    })
   });
   </script>
   {{block "scripts" .}} {{end}}
