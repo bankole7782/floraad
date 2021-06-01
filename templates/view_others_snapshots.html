@@ -70,6 +70,8 @@
 			<h2>Team Members</h2>
 			<p>Click to view their snapshots</p>
 			<ol>
+				<li><a href="/view_snapshots/{{$.CurrentProject}}">Your Snapshots</a>
+
 				{{range .Users}}
 
 					{{if eq . .OtherEmail}}
