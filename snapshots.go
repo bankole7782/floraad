@@ -18,6 +18,11 @@ import (
 	"github.com/hexops/gotextdiff/span"
   "github.com/hexops/gotextdiff/myers"
   "github.com/otiai10/copy"
+  "cloud.google.com/go/storage"
+	"context"
+  "google.golang.org/api/option"
+  "google.golang.org/api/iterator"
+
 )
 
 
@@ -514,12 +519,41 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	ctx := context.Background()
+  client, err := storage.NewClient(ctx, option.WithCredentialsFile(sakPath))
+  if err != nil {
+    errorPage(w, errors.Wrap(err, "storage error"))
+    return
+  }
+  defer client.Close()
+
+  users := make([]string, 0)
+  it := client.Bucket(pd["gcp_bucket"]).Objects(ctx, &storage.Query{Prefix: "users/"})
+  for {
+    attrs, err := it.Next()
+    if err == iterator.Done {
+      break
+    }
+    if err != nil {
+      errorPage(w, errors.Wrap(err, "storage error"))
+    	return
+    }
+    if attrs.Name != "users/" {
+    	s := strings.ReplaceAll(attrs.Name, "users/", "")
+    	if s == userData["email"] {
+    		continue
+    	}
+    	users = append(users, s)
+    }
+  }
+
 	type Context struct {
 		Projects []string
 		CurrentProject string
 		Snapshots []map[string]string
 		SnapshotTime func(s string) string
 		CleanSnapshotDesc func(s string) template.HTML
+		Users []string
 	}
 
 	st := func(s string) string {
@@ -537,5 +571,5 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/view_snapshots.html"))
-  tmpl.Execute(w, Context{projects, projectName, snapshots, st, csd})
+  tmpl.Execute(w, Context{projects, projectName, snapshots, st, csd, users})
 }

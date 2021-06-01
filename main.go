@@ -124,6 +124,10 @@ func main() {
 		r.HandleFunc("/revert_to_this/{proj}/{sname}", revertToThis)
 		r.HandleFunc("/fix_snapshot_desc/{proj}/{sname}", fixSnapshotDesc)
 
+		// others snapshots
+		r.HandleFunc("/view_others_snapshots/{proj}/{email}", viewOthersSnapshots)
+
+
 	  err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	  if err != nil {
 	  	panic(err)	

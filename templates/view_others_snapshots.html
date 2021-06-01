@@ -18,7 +18,9 @@
 	#users_box li {
 		margin-bottom: 10px;
 	}
-
+	#snapshots_box {
+		width: 950px;
+	}
 </style>
 {{end}}
 
@@ -42,8 +44,9 @@
 	</div>
 
 
-	<h1>Your Snapshots</h1>
 	<div id="snapshots_box">
+		<h1>Snapshots of {{.OtherName}} <{{.OtherEmail}}></h1>
+
 		{{range .Snapshots}}
 			<div class="a_snapshot">
 				<b>Creation Time</b>: {{call $.SnapshotTime .snapshot_name}}<br>
@@ -52,9 +55,8 @@
 					{{call $.CleanSnapshotDesc .snapshot_desc}}
 				</div>
 				<div class="a_snapshot_btns">
-					<a class="finer" href="/view_snapshot/{{$.CurrentProject}}/{{.snapshot_name}}">View Snapshot</a>
-					| <a class="finer" href="/revert_to_this/{{$.CurrentProject}}/{{.snapshot_name}}">Revert to this</a>
-					| <a class="finer" href="/fix_snapshot_desc/{{$.CurrentProject}}/{{.snapshot_name}}">Fix Comment</a>
+					<a class="finer" href="/view_other_snapshot/{{$.CurrentProject}}/{{$.OtherEmail}}/{{.snapshot_name}}">View Snapshot</a>
+					| <a class="finer" href="/start_from_this/{{$.CurrentProject}}/{{$.OtherEmail}}/{{.snapshot_name}}">Start from this</a>
 				</div>
 			</div>
 		{{else}}
@@ -69,7 +71,11 @@
 			<p>Click to view their snapshots</p>
 			<ol>
 				{{range .Users}}
-					<li><a href="/view_others_snapshots/{{$.CurrentProject}}/{{.}}">{{.}}</a></li>
+
+					{{if eq . .OtherEmail}}
+					{{else}}
+						<li><a href="/view_others_snapshot/{{$.CurrentProject}}/{{.}}">{{.}}</a></li>
+					{{end}}
 				{{end}}
 			</ol>
 		</div>
