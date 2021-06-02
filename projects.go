@@ -58,18 +58,6 @@ func saveProject(w http.ResponseWriter, r *http.Request) {
 		"sak_json": r.FormValue("sak_json"),
 	}
 
-	jsonBytes, err := json.Marshal(projectData)
-	if err != nil {
-		errorPage(w, errors.Wrap(err, "json error"))
-		return
-	}
-
-	err = os.WriteFile(filepath.Join(rootPath, "pd", projectData["project_name"] + ".json"), jsonBytes, 0777)
-	if err != nil {
-		errorPage(w, errors.Wrap(err, "os write error"))
-		return
-	}
-
 	sakPath := filepath.Join(rootPath, projectData["sak_json"])
 	descMDStatus, err := doesGCPPathExists(projectData["gcp_bucket"], sakPath, "desc.md")
 	if err != nil {
@@ -84,6 +72,18 @@ func saveProject(w http.ResponseWriter, r *http.Request) {
 
 	if descMDStatus && creatorJSONStatus {
 		errorPage(w, errors.New("Use join project. Because this project is already existing."))
+		return
+	}
+
+	jsonBytes, err := json.Marshal(projectData)
+	if err != nil {
+		errorPage(w, errors.Wrap(err, "json error"))
+		return
+	}
+
+	err = os.WriteFile(filepath.Join(rootPath, "pd", projectData["project_name"] + ".json"), jsonBytes, 0777)
+	if err != nil {
+		errorPage(w, errors.Wrap(err, "os write error"))
 		return
 	}
 
@@ -155,6 +155,24 @@ func endJoinProject(w http.ResponseWriter, r *http.Request) {
 		"gcp_bucket": r.FormValue("gcp_bucket"),
 		"sak_json": r.FormValue("sak_json"),
 	}
+
+
+	descMDStatus, err := doesGCPPathExists(projectData["gcp_bucket"], sakPath, "desc.md")
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	creatorJSONStatus, err := doesGCPPathExists(projectData["gcp_bucket"], sakPath, "creator.json")
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+
+	if ! descMDStatus && ! creatorJSONStatus {
+		errorPage(w, errors.New("Use new project. Because this project does not have some files."))
+		return
+	}
+
 
 	jsonBytes, err := json.Marshal(projectData)
 	if err != nil {
