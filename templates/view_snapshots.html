@@ -64,6 +64,9 @@
 					<a class="finer" href="/view_snapshot/{{$.CurrentProject}}/{{.snapshot_name}}">View Snapshot</a>
 					| <a class="finer" href="/revert_to_this/{{$.CurrentProject}}/{{.snapshot_name}}">Revert to this</a>
 					| <a class="finer" href="/fix_snapshot_desc/{{$.CurrentProject}}/{{.snapshot_name}}">Fix Comment</a>
+					{{ if $.CanMakeRelease}}
+						| <a class="finer" href="/make_release/{{$.CurrentProject}}/{{.snapshot_name}}">Make Release</a>
+					{{end}}
 				</div>
 			</div>
 		{{else}}

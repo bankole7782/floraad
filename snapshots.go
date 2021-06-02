@@ -557,6 +557,22 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 		hasMerger = true
 	}
 
+	creatorJSONRaw, err := downloadFileAsBytes(pd["gcp_bucket"], sakPath, "creator.json")
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	creatorObj := make(map[string]string)
+	err = json.Unmarshal(creatorJSONRaw, &creatorObj)
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	cmr := false
+	if creatorObj["email"] == userData["email"] {
+		cmr = true
+	}
+
 	type Context struct {
 		Projects []string
 		CurrentProject string
@@ -565,6 +581,7 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 		CleanSnapshotDesc func(s string) template.HTML
 		Users []string
 		HasMerger bool
+		CanMakeRelease bool
 	}
 
 	st := func(s string) string {
@@ -582,5 +599,5 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/view_snapshots.html"))
-  tmpl.Execute(w, Context{projects, projectName, snapshots, st, csd, users, hasMerger})
+  tmpl.Execute(w, Context{projects, projectName, snapshots, st, csd, users, hasMerger, cmr})
 }

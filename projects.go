@@ -156,7 +156,7 @@ func endJoinProject(w http.ResponseWriter, r *http.Request) {
 		"sak_json": r.FormValue("sak_json"),
 	}
 
-
+	sakPath := filepath.Join(rootPath, projectData["sak_json"])
 	descMDStatus, err := doesGCPPathExists(projectData["gcp_bucket"], sakPath, "desc.md")
 	if err != nil {
 		errorPage(w, err)
@@ -186,7 +186,6 @@ func endJoinProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sakPath := filepath.Join(rootPath, projectData["sak_json"])
 
 	jsonBytes2, err := json.Marshal(userData)
 	err = uploadFile(projectData["gcp_bucket"], sakPath, "users/" + userData["email"], jsonBytes2)
