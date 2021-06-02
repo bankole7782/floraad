@@ -71,6 +71,22 @@ func saveProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sakPath := filepath.Join(rootPath, projectData["sak_json"])
+	descMDStatus, err := doesGCPPathExists(projectData["gcp_bucket"], sakPath, "desc.md")
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	creatorJSONStatus, err := doesGCPPathExists(projectData["gcp_bucket"], sakPath, "creator.json")
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+
+	if descMDStatus && creatorJSONStatus {
+		errorPage(w, errors.New("Use join project. Because this project is already existing."))
+		return
+	}
+
 	err = uploadFile(projectData["gcp_bucket"], sakPath, "desc.md", []byte(r.FormValue("desc")))
 	if err != nil {
 		errorPage(w, err)
@@ -79,6 +95,12 @@ func saveProject(w http.ResponseWriter, r *http.Request) {
 
 	jsonBytes2, err := json.Marshal(userData)
 	err = uploadFile(projectData["gcp_bucket"], sakPath, "users/" + userData["email"], jsonBytes2)
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	// upload the email of he who started the project, only him would be able to release.
+	err = uploadFile(projectData["gcp_bucket"], sakPath, "creator.json", jsonBytes2)
 	if err != nil {
 		errorPage(w, err)
 		return
