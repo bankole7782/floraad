@@ -44,6 +44,14 @@
 
 
 	<h1>Your Snapshots</h1>
+	{{if .HasMerger}}
+		<p>
+			<a class="finer" href="/cancel_merge/{{.CurrentProject}}">Cancel Merging</a>
+			&nbsp;&nbsp;&nbsp;
+			<a class="finer" href="/complete_merge/{{.CurrentProject}}">Complete Merging</a>
+		</p><br><br>
+	{{end}}
+
 	<div id="snapshots_box">
 		{{range .Snapshots}}
 			<div class="a_snapshot">

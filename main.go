@@ -129,6 +129,12 @@ func main() {
 		r.HandleFunc("/view_others_snapshot/{proj}/{email}/{sname}", viewOthersSnapshot)
 		r.HandleFunc("/start_from_this/{proj}/{email}/{sname}", startFromThis)
 
+		// merges
+		r.HandleFunc("/start_merge/{proj}/{email}", startMerge)
+		r.HandleFunc("/cancel_merge/{proj}", cancelMerge)
+		r.HandleFunc("/complete_merge/{proj}", completeMerge)
+
+
 	  err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	  if err != nil {
 	  	panic(err)	

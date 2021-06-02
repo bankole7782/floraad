@@ -174,6 +174,11 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if DoesPathExists(filepath.Join(projectPath, ".merging_details.txt")) {
+		errorPage(w, errors.New("Merging in progress. Cannot currently create a snapshot"))
+		return
+	}
+	
 	pd, err := getProjectData(projectName)
 	if err != nil {
 		errorPage(w, err)
@@ -547,6 +552,11 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
     }
   }
 
+  hasMerger := false
+	if DoesPathExists(filepath.Join(rootPath, "p", projectName, ".merging_details.txt")) {
+		hasMerger = true
+	}
+
 	type Context struct {
 		Projects []string
 		CurrentProject string
@@ -554,6 +564,7 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 		SnapshotTime func(s string) string
 		CleanSnapshotDesc func(s string) template.HTML
 		Users []string
+		HasMerger bool
 	}
 
 	st := func(s string) string {
@@ -571,5 +582,5 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/view_snapshots.html"))
-  tmpl.Execute(w, Context{projects, projectName, snapshots, st, csd, users})
+  tmpl.Execute(w, Context{projects, projectName, snapshots, st, csd, users, hasMerger})
 }

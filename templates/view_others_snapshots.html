@@ -47,6 +47,9 @@
 
 	<div id="snapshots_box">
 		<h1>Snapshots of {{.OtherName}} <{{.OtherEmail}}></h1>
+		{{if .HasSnapshots}}
+			<p><a class="finer" href="/start_merge/{{.CurrentProject}}/{{.OtherEmail}}">Start Merger with your Work</a></p>
+		{{end}}
 
 		{{range .Snapshots}}
 			<div class="a_snapshot">

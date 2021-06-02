@@ -51,6 +51,7 @@ func viewOthersSnapshots(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hasSnapshots := false
 	snapshots := make([]map[string]string, 0)
 	if manifestStatus {
 		manifestRaw, err := downloadFileAsBytes(pd["project_name"], sakPath, otherEmail + "/manifest.json")
@@ -64,6 +65,7 @@ func viewOthersSnapshots(w http.ResponseWriter, r *http.Request) {
 			errorPage(w, errors.Wrap(err, "json error"))
 			return
 		}
+		hasSnapshots = true
 	}
 
 	ctx := context.Background()
@@ -115,6 +117,7 @@ func viewOthersSnapshots(w http.ResponseWriter, r *http.Request) {
 		Users []string
 		OtherName string
 		OtherEmail string
+		HasSnapshots bool
 	}
 
 	st := func(s string) string {
@@ -133,7 +136,7 @@ func viewOthersSnapshots(w http.ResponseWriter, r *http.Request) {
 
 	tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/view_others_snapshots.html"))
   tmpl.Execute(w, Context{projects, projectName, snapshots, st, csd, users, 
-  	otherUserData["fullname"], otherEmail})
+  	otherUserData["fullname"], otherEmail, hasSnapshots})
 }
 
 
