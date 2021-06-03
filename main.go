@@ -123,6 +123,8 @@ func main() {
 		r.HandleFunc("/view_snapshot/{proj}/{sname}", viewSnapshot)
 		r.HandleFunc("/revert_to_this/{proj}/{sname}", revertToThis)
 		r.HandleFunc("/fix_snapshot_desc/{proj}/{sname}", fixSnapshotDesc)
+		r.HandleFunc("/clean_snapshots/{proj}", cleanSnapshots)
+
 
 		// others snapshots
 		r.HandleFunc("/view_others_snapshots/{proj}/{email}", viewOthersSnapshots)

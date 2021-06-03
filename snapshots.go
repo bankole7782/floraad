@@ -557,6 +557,12 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 		hasMerger = true
 	}
 
+	nc := false
+	if len(snapshots) > 100 {
+	// if len(snapshots) > 5 {
+		nc = true
+	}
+
 	type Context struct {
 		Projects []string
 		CurrentProject string
@@ -565,6 +571,7 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 		CleanSnapshotDesc func(s string) template.HTML
 		Users []string
 		HasMerger bool
+		NeedsCleaning bool
 	}
 
 	st := func(s string) string {
@@ -582,5 +589,5 @@ func viewSnapshots(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/view_snapshots.html"))
-  tmpl.Execute(w, Context{projects, projectName, snapshots, st, csd, users, hasMerger})
+  tmpl.Execute(w, Context{projects, projectName, snapshots, st, csd, users, hasMerger, nc})
 }

@@ -12,6 +12,9 @@ import(
 	"os"
 	"html/template"
   "github.com/otiai10/copy"
+  "cloud.google.com/go/storage"
+	"context"
+  "google.golang.org/api/option"
 )
 
 
@@ -323,4 +326,68 @@ func fixSnapshotDesc(w http.ResponseWriter, r *http.Request) {
 	  http.Redirect(w, r, "/view_snapshots/" + projectName, 307)		  
 
 	}
+}
+
+
+
+func cleanSnapshots(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	projectName := vars["proj"]
+	rootPath, _ := GetRootPath()
+
+	pd, err := getProjectData(projectName)
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	userData, err := getUserData()
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+	sakPath := filepath.Join(rootPath, pd["sak_json"])
+
+	snapshots := make([]map[string]string, 0)
+	manifestRaw, err := downloadFileAsBytes(pd["project_name"], sakPath, userData["email"] + "/manifest.json")
+	if err != nil {
+		errorPage(w, err)
+		return
+	}
+
+	err = json.Unmarshal(manifestRaw, &snapshots)
+	if err != nil {
+		errorPage(w, errors.Wrap(err, "json error"))
+		return
+	}
+
+	ctx := context.Background()
+  client, err := storage.NewClient(ctx, option.WithCredentialsFile(sakPath))
+  if err != nil {
+		errorPage(w, errors.Wrap(err, "storage error"))
+		return
+  }
+  defer client.Close()
+
+  newSnapshots := make([]map[string]string, 0)
+	for i, snapshotObj := range snapshots {
+		if i > 20 {
+		// if i > 2 {
+			client.Bucket(pd["gcp_bucket"]).Object(userData["email"] + "/" + snapshotObj["snapshot_name"] + ".tar.gz").Delete(ctx)
+		} else {
+			newSnapshots = append(newSnapshots, snapshotObj)
+		}
+	}
+
+	jsonBytes, err := json.Marshal(newSnapshots)
+  if err != nil {
+  	errorPage(w, errors.Wrap(err, "json error"))
+  	return
+  }
+  err = uploadFile(pd["gcp_bucket"], sakPath, userData["email"] + "/manifest.json", jsonBytes)
+  if err != nil {
+  	errorPage(w, errors.Wrap(err, "storage error"))
+  	return
+  }
+
+  http.Redirect(w, r, "/view_snapshots/" + projectName, 307)
 }
