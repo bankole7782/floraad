@@ -2,9 +2,7 @@ package main
 
 import (
   "fmt"
-  "html/template"
   "strings"
-  "net/http"
   "os"
   "path/filepath"
   "github.com/pkg/errors"
@@ -15,15 +13,10 @@ import (
 	"context"
   "google.golang.org/api/option"
   "io"
+	"github.com/gookit/color"
 )
 
 const VersionFormat = "20060102T150405MST"
-
-type WordPosition struct {
-  Word string
-  ParagraphIndex int
-  HtmlFilename string
-}
 
 
 func GetRootPath() (string, error) {
@@ -68,17 +61,9 @@ func DoesPathExists(p string) bool {
 }
 
 
-func errorPage(w http.ResponseWriter, err error) {
-	type Context struct {
-		Msg template.HTML
-	}
+func printError(err error) {
 	msg := fmt.Sprintf("%+v", err)
-	fmt.Println(msg)
-	msg = strings.ReplaceAll(msg, "\n", "<br>")
-	msg = strings.ReplaceAll(msg, " ", "&nbsp;")
-	msg = strings.ReplaceAll(msg, "\t", "&nbsp;&nbsp;")
-	tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/error.html"))
-	tmpl.Execute(w, Context{template.HTML(msg)})
+	color.Red.Println(msg)
 }
 
 
