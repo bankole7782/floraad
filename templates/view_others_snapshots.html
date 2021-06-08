@@ -1,0 +1,90 @@
+{{define "styles"}}
+<style>
+	.a_snapshot_desc {
+		margin-left: 20px;
+	}
+	.a_snapshot {
+		margin-bottom: 20px;
+	}
+	.a_snapshot_btns {
+		margin-top: 10px;
+	}
+	#users_box {
+		width: 350px;
+		position: fixed;
+		right: 0px;
+		top: 50px;
+	}
+	#users_box li {
+		margin-bottom: 10px;
+	}
+	#snapshots_box {
+		width: 800px;
+	}
+</style>
+{{end}}
+
+
+{{define "main"}}
+<div id="container">
+	<div id="header">
+		<select id="projects_switch">
+			{{range .Projects}}
+				{{if eq $.CurrentProject .}}
+					<option selected> {{.}} </option>
+				{{else}}
+					<option>{{.}}</option>
+				{{end}}
+			{{end}}
+		</select>
+		| <a href="/new_project"> New/Join Project</a>
+		| <a href="/view_project/{{.CurrentProject}}">Description</a>
+		| <a href="/view_snapshots/{{.CurrentProject}}">Snapshots</a>
+		| <a href="/update_exrules/{{.CurrentProject}}">Exclusion Rules</a>
+		|	<a href="/create_snapshot/{{.CurrentProject}}">Create Snapshot</a>
+	</div>
+
+
+	<div id="snapshots_box">
+		<h1>Snapshots of {{.OtherName}} <{{.OtherEmail}}></h1>
+		{{if .HasSnapshots}}
+			<p><a class="finer" href="/start_merge/{{.CurrentProject}}/{{.OtherEmail}}">Start Merger with your Work</a></p>
+		{{end}}
+
+		{{range .Snapshots}}
+			<div class="a_snapshot">
+				<b>Creation Time</b>: {{call $.SnapshotTime .snapshot_name}}<br>
+				<b>Description</b>:<br>
+				<div class="a_snapshot_desc">
+					{{call $.CleanSnapshotDesc .snapshot_desc}}
+				</div>
+				<div class="a_snapshot_btns">
+					<a class="finer" href="/view_others_snapshot/{{$.CurrentProject}}/{{$.OtherEmail}}/{{.snapshot_name}}">View Snapshot</a>
+					| <a class="finer" href="/start_from_this/{{$.CurrentProject}}/{{$.OtherEmail}}/{{.snapshot_name}}">Start from this</a>
+				</div>
+			</div>
+		{{else}}
+			<p>You have not defined any snapshots</p>
+		{{end}}
+	</div>
+
+	{{$ll := len .Users}}
+	{{if gt $ll 0}}
+		<div id="users_box">
+			<h2>Team Members</h2>
+			<p>Click to view their snapshots</p>
+			<ol>
+				<li><a href="/view_snapshots/{{$.CurrentProject}}">Your Snapshots</a>
+
+				{{range .Users}}
+
+					{{if eq . .OtherEmail}}
+					{{else}}
+						<li><a href="/view_others_snapshot/{{$.CurrentProject}}/{{.}}">{{.}}</a></li>
+					{{end}}
+				{{end}}
+			</ol>
+		</div>
+	{{end}}
+</div>
+{{end}}
