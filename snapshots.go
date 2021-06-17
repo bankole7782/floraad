@@ -22,7 +22,7 @@ import (
 	"context"
   "google.golang.org/api/option"
   "google.golang.org/api/iterator"
-
+	"crypto/sha1"
 )
 
 
@@ -151,8 +151,10 @@ func checkExrulesFiles(path string, exRules ExRules) bool {
 
 
 func makeHTMLFriendly(s string) string {
-	s = strings.ReplaceAll(s, "/", "__")
-	return s
+	h := sha1.New()
+	h.Write([]byte(s))
+	bs := h.Sum(nil)
+	return fmt.Sprintf("%x", bs)
 }
 
 
@@ -178,7 +180,7 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 		errorPage(w, errors.New("Merging in progress. Cannot currently create a snapshot"))
 		return
 	}
-	
+
 	pd, err := getProjectData(projectName)
 	if err != nil {
 		errorPage(w, err)
@@ -283,7 +285,7 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			// compute diffs 
+			// compute diffs
 			diffs := make(map[string]template.HTML)
 			for key, _ := range changed {
 				rawNew, err := os.ReadFile(filepath.Join(projectPath, key))
@@ -318,7 +320,7 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 			}
 
 			tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/create_snapshot.html"))
-		  tmpl.Execute(w, Context{projectName, true, added, changed, deleted, diffs})					
+		  tmpl.Execute(w, Context{projectName, true, added, changed, deleted, diffs})
 
 		} else {
 
@@ -327,7 +329,7 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 				HasMoreInfo bool
 			}
 			tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/create_snapshot.html"))
-		  tmpl.Execute(w, Context{projectName, false})					
+		  tmpl.Execute(w, Context{projectName, false})
 
 		}
 
@@ -382,7 +384,7 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 		  if err != nil {
 		  	errorPage(w, errors.Wrap(err, "storage error"))
 		  	return
-		  }		  
+		  }
 
 		  manifestObj := []map[string]string {
 		  	{
@@ -402,7 +404,7 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 		  	return
 		  }
 
-		  http.Redirect(w, r, "/view_snapshots/" + projectName, 307)		  
+		  http.Redirect(w, r, "/view_snapshots/" + projectName, 307)
 
 		} else {
 
@@ -452,7 +454,7 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 		  if err != nil {
 		  	errorPage(w, errors.Wrap(err, "storage error"))
 		  	return
-		  }		  
+		  }
 
 			aManifestObj := map[string]string {
 	  		"snapshot_name": snapshotName,
@@ -472,7 +474,7 @@ func createSnapshot(w http.ResponseWriter, r *http.Request) {
 		  	return
 		  }
 
-		  http.Redirect(w, r, "/view_snapshots/" + projectName, 307)		  
+		  http.Redirect(w, r, "/view_snapshots/" + projectName, 307)
 		}
 
 	}

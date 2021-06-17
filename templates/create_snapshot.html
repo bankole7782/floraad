@@ -7,6 +7,9 @@
 	#side1 {
 		width: 300px;
 	}
+	#side2 {
+		width: 850px;
+	}
 	.a_diff {
 		display: none;
 	}
@@ -40,7 +43,7 @@
 
 				<h2>Changed Files</h2>
 				{{range $k, $v := .Changed}}
-					<a class="view_diff" data-filepath="{{$k}}" href="#">{{$v}}</a>
+					<a class="view_diff" data-filepath="{{$v}}" href="#">{{$k}}</a>
 				{{end}}
 
 				<h2>Deleted Files </h2>
