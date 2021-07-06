@@ -29,7 +29,7 @@
       color: #4B0F0F;
     }
     input, select, textarea {
-      font-size: 0.8em;      
+      font-size: 0.8em;
     }
     input[type=submit] {
       font-size: 1em;
@@ -49,7 +49,7 @@
 
     $(".xdg").click(function(e) {
       e.preventDefault()
-      $.get("/xdg/?p=" + $(e.target).attr("href"))      
+      $.get("/xdg/?p=" + $(e.target).attr("href"))
     })
 
     $("form").submit(function(e) {
@@ -60,7 +60,7 @@
       history.back()
     })
 
-    $("#project_switch").change(function(e){
+    $("#projects_switch").change(function(e){
       var projectToView = $(e.target).val()
       location.assign("/view_project/" + projectToView)
     })
