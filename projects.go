@@ -10,7 +10,8 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	// "fmt"
-	"github.com/gomarkdown/markdown"
+	// "github.com/gomarkdown/markdown"
+	"github.com/russross/blackfriday"
 )
 
 
@@ -223,7 +224,7 @@ func viewProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	html := markdown.ToHTML(descBytes, nil, nil)
+	html := string(blackfriday.MarkdownCommon(descBytes))
 	type Context struct {
 		Projects []string
 		CurrentProject string
@@ -258,7 +259,7 @@ func updateDesc(w http.ResponseWriter, r *http.Request) {
 			DescMD string
 		}
 		tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/update_desc.html"))
-	  tmpl.Execute(w, Context{projectName, string(descBytes)})		
+	  tmpl.Execute(w, Context{projectName, string(descBytes)})
 	} else {
 		err = uploadFile(pd["gcp_bucket"], sakPath, "desc.md", []byte(r.FormValue("desc")))
 		if err != nil {
@@ -310,7 +311,7 @@ func updateExclusionRules(w http.ResponseWriter, r *http.Request) {
 			Rules string
 		}
 		tmpl := template.Must(template.ParseFS(content, "templates/base.html", "templates/update_exrules.html"))
-	  tmpl.Execute(w, Context{projectName, rules})		
+	  tmpl.Execute(w, Context{projectName, rules})
 	} else {
 
 		err = uploadFile(pd["gcp_bucket"], sakPath, userData["email"] + "/exrules.txt", []byte(r.FormValue("exrules")))
